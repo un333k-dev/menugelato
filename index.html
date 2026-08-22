@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Monitor z Grafiką Pod Tekstem</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-image: url('tlo.jpg'); 
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            
+            /* GŁÓWNY STYL TEKSTU */
+            color: #ffffff; 
+            font-family: 'Arial Black', Gadget, sans-serif; 
+            font-size: 2rem; 
+            text-transform: uppercase;
+        }
+
+        /* Styl kontenera dla jednego smaku (Tekst na górze, obrazek na dole) */
+        .flavor-slot {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column; /* Ustawia elementy pionowo: tekst pierwszy, obrazek drugi */
+            align-items: center;    /* Centruje tekst i obrazek w osi pionowej */
+            justify-content: center;
+            gap: 10px;              /* Odstęp pionowy między tekstem a obrazkiem */
+            width: 350px;           /* Dopasuj do szerokości okienka na Twojej planszy */
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .flavor-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 900;
+            text-align: center;
+        }
+
+        /* Styl dla obrazka/ikony smaku pod tekstem */
+        .flavor-icon {
+            width: 60px;            /* Rozmiar ikony - możesz powiększyć lub pomniejszyć */
+            height: 60px; 
+            object-fit: contain;    /* Zapobiega zniekształceniu obrazka */
+        }
+
+        /* --- MATRYCA WSPÓŁRZĘDNYCH (X, Y) --- */
+        #slot-0 { top: 30%; left: 20%; }
+        #slot-1 { top: 50%; left: 20%; }
+        #slot-2 { top: 70%; left: 20%; }
+
+        #slot-3 { top: 30%; left: 50%; }
+        #slot-4 { top: 50%; left: 50%; }
+        #slot-5 { top: 70%; left: 50%; }
+
+        #slot-6 { top: 30%; left: 80%; }
+        #slot-7 { top: 50%; left: 80%; }
+        #slot-8 { top: 70%; left: 80%; }
+    </style>
+</head>
+<body>
+
+    <div id="menu-overlay"></div>
+
+    <script>
+        const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSrdYDwv_7MojjqKKEz0yvGd03CdRfNcMhUlQdM0J_cWULAlVDfcxlwqR7GAp3uXzHogrO5DcrGUBIW/pub?output=csv';
+
+        async function updateMenu() {
+            try {
+                const response = await fetch(csvUrl);
+                const data = await response.text();
+                
+                const lines = data.split('\n')
+                                  .map(line => line.trim())
+                                  .filter(line => line.length > 0);
+
+                const overlay = document.getElementById('menu-overlay');
+                overlay.innerHTML = ''; 
+
+                lines.forEach((line, index) => {
+                    if (index < 9) { // Maksymalnie 9 slotów
+                        // Prawidłowy podział linii CSV na dwie kolumny
+                        const columns = line.split(',');
+                        const flavorName = columns[0] ? columns[0].replace(/"/g, '').trim() : '';
+                        const flavorImg = columns[1] ? columns[1].replace(/"/g, '').trim() : '';
+
+                        // Stworzenie głównego kontenera slotu
+                        const slotDiv = document.createElement('div');
+                        slotDiv.className = 'flavor-slot';
+                        slotDiv.id = `slot-${index}`;
+
+                        // 1. Najpierw dodajemy tekst (będzie na górze)
+                        const textSpan = document.createElement('span');
+                        textSpan.className = 'flavor-text';
+                        textSpan.textContent = flavorName;
+                        slotDiv.appendChild(textSpan);
+
+                        // 2. Następnie dodajemy obrazek (wskoczy pod tekst dzięki flex-direction: column)
+                        if (flavorImg) {
+                            const img = document.createElement('img');
+                            img.className = 'flavor-icon';
+                            img.src = flavorImg;
+                            img.alt = '';
+                            slotDiv.appendChild(img);
+                        }
+
+                        overlay.appendChild(slotDiv);
+                    }
+                });
+            } catch (error) {
+                console.error('Błąd aktualizacji menu:', error);
+            }
+        }
+
+        updateMenu();
+        setInterval(updateMenu, 30000); // Odświeżanie co 30 sekund
+    </script>
+</body>
+</html>
