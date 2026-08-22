@@ -10,26 +10,41 @@
             margin: 0;
             padding: 0;
         }
+        
         body {
-            background-image: url('tlo.jpg'); 
-            background-size: 1920px 1080px; /* Sztywne zablokowanie proporcji grafiki pod format Full HD */
-            background-position: top left;
-            background-repeat: no-repeat;
-            width: 1920px;
-            height: 1080px;
+            background-color: #000000; /* Czarne pasy bezpieczeństwa, jeśli ekran miałby inne proporcje */
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             overflow: hidden;
-            position: relative;
-            background-color: #ffffff;
             
-            /* STYLIZACJA IDENTYCZNA JAK "ŚMIETANKA PREMIUM" */
-            color: #111c3c; /* Dokładny granatowo-indygowy odcień */
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            font-size: 26px; /* Wyraźna wielkość dopasowana do kafelków */
+            /* DOKŁADNY KOLOR I STYL JAK "ŚMIETANKA PREMIUM" */
+            color: #111c3c; 
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
-        /* Struktura pojedynczego okienka (Smak na górze, ikona pod nim) */
+        /* 
+           GŁÓWNY KONTENER TABLICY MENU 
+           Blokuje proporcje ekranu 16:9. Wszystko wewnątrz skaluje się idealnie razem z tłem.
+        */
+        .menu-wrapper {
+            position: relative;
+            width: 100vw;
+            height: 56.25vw; /* Konstrukcja proporcji 16:9 bazująca na szerokości */
+            max-height: 100vh;
+            max-width: 177.78vh; /* Zabezpieczenie przed rozciąganiem w pionie */
+            
+            background-image: url('tlo.jpg'); 
+            background-size: 100% 100%; /* Elastyczne, pełne rozciągnięcie wewnątrz kontenera */
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        /* Styl dla pojedynczego okienka smaku */
         .flavor-slot {
             position: absolute;
             transform: translate(-50%, -50%);
@@ -37,54 +52,58 @@
             flex-direction: column; 
             align-items: center;    
             justify-content: center;
-            gap: 10px;              
-            width: 320px; /* Bezpieczna szerokość tekstu wewnątrz kwadratu */
+            width: 17%; /* Szerokość kafelka wyrażona w procentach kontenera */
             text-align: center;
         }
 
+        /* Dynamiczny rozmiar tekstu reagujący na wielkość okna */
         .flavor-text {
             display: block;
-            font-weight: 800; /* Mocna, gruba czcionka (Bold/Black) */
+            font-weight: 800; 
+            font-size: 2.2cqi; /* Rozmiar czcionki skaluje się płynnie wraz z rozmiarem całej planszy */
             width: 100%;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        /* Styl dla ikony smaku umieszczonej pod tekstem */
+        /* Elastyczna ikona smaku umieszczona pod tekstem */
         .flavor-icon {
-            width: 55px;            
-            height: 55px; 
+            width: 4.5cqi; /* Wielkość ikony również dopasowuje się do skali tła */
+            height: 4.5cqi; 
             object-fit: contain;    
+            margin-top: 2%;
         }
 
         /* 
-           MATRYCA PIKSELI DLA PUSTYCH KWADRATÓW (EKRAN 1920x1080)
-           Jeśli po wdrożeniu któryś kafel minimalnie ucieka, 
-           zmień jego wartość 'top' (góra/dół) lub 'left' (lewo/prawo) w pikselach.
+           MATRYCA PROCENTOWA (X, Y) WPISANA W STRUKTURĘ 16:9
+           Te punkty określają środek geometryczny Twoich 8 dolnych kwadratów.
+           Jeżeli po wdrożeniu jakiś smak minimalnie ucieka, delikatnie zmień jego procenty.
         */
 
-        /* TRZECI RZĄD NA PLANSZY (Smaki zmienne 1 - 4) */
-        #slot-0 { top: 665px; left: 315px; } 
-        #slot-1 { top: 665px; left: 745px; } 
-        #slot-2 { top: 665px; left: 1175px; } 
-        #slot-3 { top: 665px; left: 1605px; } 
+        /* RZĄD 3 (Smaki zmienne 1 - 4) */
+        #slot-0 { top: 61.5%; left: 16.6%; } 
+        #slot-1 { top: 61.5%; left: 38.9%; } 
+        #slot-2 { top: 61.5%; left: 61.1%; } 
+        #slot-3 { top: 61.5%; left: 83.4%; } 
 
-        /* CZWARTY RZĄD NA PLANSZY (Smaki zmienne 5 - 8) */
-        #slot-4 { top: 890px; left: 315px; } 
-        #slot-5 { top: 890px; left: 745px; } 
-        #slot-6 { top: 890px; left: 1175px; } 
-        #slot-7 { top: 890px; left: 1605px; } 
+        /* RZĄD 4 (Smaki zmienne 5 - 8) */
+        #slot-4 { top: 82.5%; left: 16.6%; } 
+        #slot-5 { top: 82.5%; left: 38.9%; } 
+        #slot-6 { top: 82.5%; left: 61.1%; } 
+        #slot-7 { top: 82.5%; left: 83.4%; } 
 
     </style>
 </head>
 <body>
 
-    <!-- Miejsce na dane z arkusza -->
-    <div id="menu-overlay"></div>
+    <!-- Wszystko zamykamy w jednym elastycznym pudełku o stałych proporcjach -->
+    <div class="menu-wrapper">
+        <div id="menu-overlay"></div>
+    </div>
 
     <script>
-        // PAMIĘTAJ O WKLEJENIU SWOJEGO LINKU .CSV Z GOOGLE SHEETS
+        // TUTAJ WKLEJ LINK .CSV Z GOOGLE SHEETS
         const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSrdYDwv_7MojjqKKEz0yvGd03CdRfNcMhUlQdM0J_cWULAlVDfcxlwqR7GAp3uXzHogrO5DcrGUBIW/pub?output=csv';
 
         async function updateMenu() {
@@ -101,7 +120,6 @@
 
                 lines.forEach((line, index) => {
                     if (index < 8) { 
-                        // NAPRAWIONY PODZIAŁ NA KOLUMNY:
                         const columns = line.split(',');
                         const flavorName = columns[0] ? columns[0].replace(/"/g, '').trim() : '';
                         const flavorImg = columns[1] ? columns[1].replace(/"/g, '').trim() : '';
@@ -110,13 +128,13 @@
                         slotDiv.className = 'flavor-slot';
                         slotDiv.id = `slot-${index}`;
 
-                        // 1. Dodanie poprawnego granatowego tekstu
+                        // Tekst
                         const textSpan = document.createElement('span');
                         textSpan.className = 'flavor-text';
                         textSpan.textContent = flavorName;
                         slotDiv.appendChild(textSpan);
 
-                        // 2. Dodanie ikony pod tekstem
+                        // Ikona pod tekstem
                         if (flavorImg) {
                             const img = document.createElement('img');
                             img.className = 'flavor-icon';
