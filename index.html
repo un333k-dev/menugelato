@@ -5,32 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Menu Monitor Nutto Gelato</title>
     <style>
+        /* Całkowite wyczyszczenie marginesów przeglądarki - usuwa paski */
         * {
             box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        html, body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #ffffff;
         }
 
         body {
+            /* Idealne rozciągnięcie planszy Nutto na pełny ekran */
             background-image: url('tlo.jpg'); 
             background-size: 100% 100%;
             background-position: center;
             background-repeat: no-repeat;
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
-            position: relative;
-            background-color: #ffffff;
-            
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             text-transform: uppercase;
         }
 
-        /* 
-           ZMIENIONY PUNKT KOTWICZENIA SLOTU
-           Kotwiczymy górną krawędź bloku (translate -50% w poziomie, 0 w pionie).
-           Dzięki temu tekst trzyma się góry kafelka, a obrazek ma miejsce pod spodem.
-        */
+        /* Kontener slotu trzymający się góry kafelka */
         .flavor-slot {
             position: absolute;
             transform: translate(-50%, 0);
@@ -39,12 +38,18 @@
             align-items: center;    
             justify-content: flex-start;
             width: 11vw; 
-            height: 16vh; /* Bezpieczna wysokość całego kafelka na treść */
+            height: 16vh; 
             text-align: center;
         }
 
+        /* 
+           STAŁE I NIEZMIENNE WYMORSZENIE GRANATU NUTTO
+           Kolor wpisany bezpośrednio tutaj z "!important" sprawi, 
+           że Chrome na Macu i iiyama wyświetlą piękny, głęboki granat.
+        */
         .flavor-text {
             display: block;
+            color: #0e265c !important; 
             font-size: 1.45vw; 
             font-weight: 800; 
             letter-spacing: -0.2px;
@@ -53,28 +58,23 @@
             overflow: hidden;
             text-overflow: ellipsis;
             line-height: 1.1;
-            margin-bottom: 8px; /* Odstęp tekstu od obrazka */
         }
 
-        /* Elastyczna wielkość ikony pod tekstem */
+        /* Ikona owocu/dodatku pod tekstem */
         .flavor-icon {
             width: 4.8vw; 
             height: 4.8vw; 
             object-fit: contain;    
-            margin-top: auto; /* Popycha ikonę do dolnej części zarezerwowanego obszaru */
+            margin-top: 8px !important; 
         }
 
-        /* 
-           SKORYGOWANA MATRYCA POZYCJI DLA GÓRNEJ KRAWĘDZI OKIENEK
-           Wartości 'top' zostały zmniejszone, aby napisy lądowały tuż pod górną kreską kafelka.
-        */
-
-        /* RZĄD 3 (Zapełniamy puste kafelki 2, 3 i 4 - obok Brigadeiro) */
+        /* MATRYCA POZYCJI DLA GÓRNEJ KRAWĘDZI OKIENEK */
+        /* RZĄD 3 (Obok Brigadeiro) */
         #slot-0 { top: 56.5%; left: 48.0%; } 
         #slot-1 { top: 56.5%; left: 59.3%; } 
         #slot-2 { top: 56.5%; left: 70.6%; } 
 
-        /* RZĄD 4 (Cztery puste kafelki od lewej do prawej) */
+        /* RZĄD 4 (Cały dolny rząd) */
         #slot-3 { top: 76.5%; left: 36.7%; } 
         #slot-4 { top: 76.5%; left: 48.0%; } 
         #slot-5 { top: 76.5%; left: 59.3%; } 
@@ -104,21 +104,19 @@
                 lines.forEach((line, index) => {
                     if (index < 7) { 
                         const columns = line.split(',');
-                        const flavorName = columns[0] ? columns[0].replace(/"/g, '').trim() : '';
-                        const flavorImg = columns[1] ? columns[1].replace(/"/g, '').trim() : '';
+                        const flavorName = columns ? columns.replace(/"/g, '').trim() : '';
+                        const flavorImg = columns ? columns.replace(/"/g, '').trim() : '';
 
                         const slotDiv = document.createElement('div');
                         slotDiv.className = 'flavor-slot';
                         slotDiv.id = `slot-${index}`;
 
-                        // Generowanie nazwy smaku (Granat Nutto)
+                        // Generowanie czystego tekstu (kolor czerpie z klasy CSS .flavor-text)
                         const textSpan = document.createElement('span');
                         textSpan.className = 'flavor-text';
-                        textSpan.setAttribute('style', 'color: #0e265c !important;');
                         textSpan.textContent = flavorName;
                         slotDiv.appendChild(textSpan);
 
-                        // Generowanie ikony na dole (jeśli podano link w drugiej kolumnie)
                         if (flavorImg) {
                             const img = document.createElement('img');
                             img.className = 'flavor-icon';
