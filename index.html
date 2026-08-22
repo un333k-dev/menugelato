@@ -30,24 +30,24 @@
             flex-direction: column; 
             align-items: center;    
             justify-content: flex-start;
-            width: 11vw; 
+            width: 12.5vw; /* Zwiększona szerokość okienka na tekst, aby długie nazwy się nie gniotły */
             height: 16vh; 
             text-align: center;
             margin: 0;
             padding: 0;
         }
 
-        /* Styl z mniejszą czcionką i włączonym automatycznym dzieleniem wyrazów */
         .flavor-text {
             display: block;
-            color: #0e265c !important; /* Bezwarunkowe wymuszenie szafirowego granatu Nutto */
-            font-size: 1.15vw; /* Zmniejszona wielkość liter dla zgrabnego wyglądu */
+            color: #0e265c !important; 
+            font-size: 1.05vw; /* Zmniejszona wielkość liter z 1.15vw, by chronić ramki kafelków */
             font-weight: 800; 
             letter-spacing: -0.2px;
             width: 100%;
-            white-space: normal !important; /* Zgoda na dzielenie wierszy */
+            white-space: normal !important; 
             word-wrap: break-word; 
             line-height: 1.15;
+            margin-top: 4px; /* Minimalny margines bezpieczeństwa od górnej kreski kafelka */
             margin-bottom: 6px;
         }
 
@@ -58,15 +58,23 @@
             margin-top: auto; 
         }
 
-        /* MATRYCA POZYCJI DLA GÓRNEJ KRAWĘDZI OKIENEK */
-        #slot-0 { top: 56.5%; left: 48.0%; } 
-        #slot-1 { top: 56.5%; left: 59.3%; } 
-        #slot-2 { top: 56.5%; left: 70.6%; } 
+        /* 
+           NOWA MATRYCA PRZESUNIĘTA O JEDNO MIEJSCE WYŻEJ
+           Slot-0 celuje teraz w stare miejsce Sorbetu Kiwi.
+        */
 
-        #slot-3 { top: 76.5%; left: 36.7%; } 
-        #slot-4 { top: 76.5%; left: 48.0%; } 
-        #slot-5 { top: 76.5%; left: 59.3%; } 
-        #slot-6 { top: 76.5%; left: 70.6%; } 
+        /* RZĄD 2 (Ostatnia kolumna) */
+        #slot-0 { top: 36.5%; left: 70.6%; } /* Miejsce po Sorbet Kiwi */
+
+        /* RZĄD 3 (Trzy puste kafelki obok Brigadeiro) */
+        #slot-1 { top: 56.5%; left: 48.0%; } 
+        #slot-2 { top: 56.5%; left: 59.3%; } 
+        #slot-3 { top: 56.5%; left: 70.6%; } 
+
+        /* RZĄD 4 (Trzy pierwsze kafelki w ostatnim rzędzie) */
+        #slot-4 { top: 76.5%; left: 36.7%; } 
+        #slot-5 { top: 76.5%; left: 48.0%; } 
+        #slot-6 { top: 76.5%; left: 59.3%; } 
 
     </style>
 </head>
@@ -94,7 +102,6 @@
                         const columns = line.split(',');
                         
                         if (columns.length > 0) {
-                            // Nowy, bezpieczny sposób wyciągania kolumn bez użycia nawiasów kwadratowych
                             const rawName = columns.shift() || '';
                             const rawImg = columns.shift() || '';
                             
