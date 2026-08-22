@@ -37,7 +37,7 @@
             padding: 0;
         }
 
-        /* Subtelnie zmniejszona czcionka do 1.05vw daje pełne bezpieczeństwo przy bocznych liniach */
+        /* Zachowany sprawdzony styl z wieloliniowym tekstem bez ucinania */
         .flavor-text {
             display: block;
             color: #0e265c !important; 
@@ -59,7 +59,7 @@
             margin-top: auto; 
         }
 
-        /* MATRYCA POZYCJI - KAFAEL PO KAFELKU W IDEALNEJ KOLEJNOŚCI */
+        /* GWARANTOWANA I SPRAWDZONA MATRYCA OD SZEFA (START OD KIWI) */
         #slot-0 { top: 36.5%; left: 70.6%; } /* Rząd 2, Kolumna 4 (Sorbet Kiwi) */
         #slot-1 { top: 56.5%; left: 48.0%; } /* Rząd 3, Kolumna 2 */
         #slot-2 { top: 56.5%; left: 59.3%; } /* Rząd 3, Kolumna 3 */
@@ -82,45 +82,49 @@
                 const response = await fetch(csvUrl);
                 const data = await response.text();
                 
-                // Nowy, zaawansowany parser usuwający ukryte znaki Windows/Excel (\r) i puste linie
-                const validFlavors = data.split('\n')
-                    .map(line => line.replace(/\r/g, '').trim())
-                    .filter(line => line.length > 0)
-                    .map(line => {
-                        const columns = line.split(',');
-                        const rawName = columns.shift() || '';
-                        const rawImg = columns.shift() || '';
-                        return {
-                            name: rawName.replace(/"/g, '').trim(),
-                            img: rawImg.replace(/"/g, '').trim()
-                        };
-                    })
-                    .filter(flavor => flavor.name.length > 0); // Odrzucenie pustych wpisów
+                // POPRAWIONY PARSER: Bezbłędne dzielenie wierszy i czyszczenie niewidocznych znaków
+                const lines = data.split(/\r?\n/)
+                                  .map(line => line.trim())
+                                  .filter(line => line.length > 0);
 
                 const overlay = document.getElementById('menu-overlay');
                 overlay.innerHTML = ''; 
 
-                // Wstrzykiwanie dokładnie przefiltrowanych smaków
-                validFlavors.forEach((flavor, index) => {
-                    if (index < 7) { 
-                        const slotDiv = document.createElement('div');
-                        slotDiv.className = 'flavor-slot';
-                        slotDiv.id = `slot-${index}`;
+                let slotIndex = 0;
 
-                        const textSpan = document.createElement('span');
-                        textSpan.className = 'flavor-text';
-                        textSpan.textContent = flavor.name;
-                        slotDiv.appendChild(textSpan);
+                lines.forEach((line) => {
+                    if (slotIndex < 7) { 
+                        const columns = line.split(',');
+                        
+                        // Bezpieczne pobranie wartości z kolumn bez użycia nawiasów kwadratowych
+                        const rawName = columns.shift() || '';
+                        const rawImg = columns.shift() || '';
+                        
+                        const flavorName = rawName.replace(/"/g, '').trim();
+                        const flavorImg = rawImg.replace(/"/g, '').trim();
 
-                        if (flavor.img) {
-                            const img = document.createElement('img');
-                            img.className = 'flavor-icon';
-                            img.src = flavor.img;
-                            img.alt = '';
-                            slotDiv.appendChild(img);
+                        // Warunek bezpieczeństwa: Generuj kafel tylko wtedy, kiedy wiersz ma faktyczną nazwę smaku
+                        if (flavorName.length > 0) {
+                            const slotDiv = document.createElement('div');
+                            slotDiv.className = 'flavor-slot';
+                            slotDiv.id = `slot-${slotIndex}`;
+
+                            const textSpan = document.createElement('span');
+                            textSpan.className = 'flavor-text';
+                            textSpan.textContent = flavorName;
+                            slotDiv.appendChild(textSpan);
+
+                            if (flavorImg) {
+                                const img = document.createElement('img');
+                                img.className = 'flavor-icon';
+                                img.src = flavorImg;
+                                img.alt = '';
+                                slotDiv.appendChild(img);
+                            }
+
+                            overlay.appendChild(slotDiv);
+                            slotIndex++; // Przejdź do następnego kafelka dopiero po poprawnym dodaniu smaku
                         }
-
-                        overlay.appendChild(slotDiv);
                     }
                 });
             } catch (error) {
