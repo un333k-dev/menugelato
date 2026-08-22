@@ -12,23 +12,24 @@
         }
         body {
             background-image: url('tlo.jpg'); 
-            background-size: 100% 100%; /* Wymuszenie idealnego rozciągnięcia do krawędzi ekranu */
-            background-position: center;
+            background-size: 1920px 1080px; /* Sztywne zablokowanie proporcji grafiki pod format Full HD */
+            background-position: top left;
             background-repeat: no-repeat;
-            width: 100vw;
-            height: 100vh;
+            width: 1920px;
+            height: 1080px;
             overflow: hidden;
             position: relative;
+            background-color: #ffffff;
             
-            /* DOKŁADNY KOLOR I STYL JAK "ŚMIETANKA PREMIUM" */
-            color: #111c3c; 
+            /* STYLIZACJA IDENTYCZNA JAK "ŚMIETANKA PREMIUM" */
+            color: #111c3c; /* Dokładny granatowo-indygowy odcień */
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            font-size: 1.45rem; 
+            font-size: 26px; /* Wyraźna wielkość dopasowana do kafelków */
             text-transform: uppercase;
-            letter-spacing: 0.2px; /* Lekkie światło między literami jak w oryginale */
+            letter-spacing: 0.5px;
         }
 
-        /* Struktura slotu (Tekst na górze, ikona na dole) */
+        /* Struktura pojedynczego okienka (Smak na górze, ikona pod nim) */
         .flavor-slot {
             position: absolute;
             transform: translate(-50%, -50%);
@@ -36,19 +37,18 @@
             flex-direction: column; 
             align-items: center;    
             justify-content: center;
-            gap: 8px;              
-            width: 17vw; /* Szerokość bezpieczna dla kafelków */
+            gap: 10px;              
+            width: 320px; /* Bezpieczna szerokość tekstu wewnątrz kwadratu */
             text-align: center;
         }
 
         .flavor-text {
-            display: inline-block;
-            font-weight: 800; /* Gruby font (Bold / Extra Bold) */
+            display: block;
+            font-weight: 800; /* Mocna, gruba czcionka (Bold/Black) */
             width: 100%;
             white-space: nowrap;
             overflow: hidden;
-            /* Automatyczne ściskanie tekstu w poziomie, jeśli nazwa smaku jest za długa dla kafelka */
-            transform-origin: center;
+            text-overflow: ellipsis;
         }
 
         /* Styl dla ikony smaku umieszczonej pod tekstem */
@@ -59,31 +59,32 @@
         }
 
         /* 
-           PRECYZYJNA MATRYCA POZYCJI DLA TWOICH KWADRATÓW
-           Wartości procentowe określają środek każdego z 8 pustych kafelków.
+           MATRYCA PIKSELI DLA PUSTYCH KWADRATÓW (EKRAN 1920x1080)
+           Jeśli po wdrożeniu któryś kafel minimalnie ucieka, 
+           zmień jego wartość 'top' (góra/dół) lub 'left' (lewo/prawo) w pikselach.
         */
 
-        /* RZĄD 3 (Smaki zmienne 1 - 4) */
-        #slot-0 { top: 61.3%; left: 16.5%; } 
-        #slot-1 { top: 61.3%; left: 38.8%; } 
-        #slot-2 { top: 61.3%; left: 61.2%; } 
-        #slot-3 { top: 61.3%; left: 83.5%; } 
+        /* TRZECI RZĄD NA PLANSZY (Smaki zmienne 1 - 4) */
+        #slot-0 { top: 665px; left: 315px; } 
+        #slot-1 { top: 665px; left: 745px; } 
+        #slot-2 { top: 665px; left: 1175px; } 
+        #slot-3 { top: 665px; left: 1605px; } 
 
-        /* RZĄD 4 (Smaki zmienne 5 - 8) */
-        #slot-4 { top: 82.3%; left: 16.5%; } 
-        #slot-5 { top: 82.3%; left: 38.8%; } 
-        #slot-6 { top: 82.3%; left: 61.2%; } 
-        #slot-7 { top: 82.3%; left: 83.5%; } 
+        /* CZWARTY RZĄD NA PLANSZY (Smaki zmienne 5 - 8) */
+        #slot-4 { top: 890px; left: 315px; } 
+        #slot-5 { top: 890px; left: 745px; } 
+        #slot-6 { top: 890px; left: 1175px; } 
+        #slot-7 { top: 890px; left: 1605px; } 
 
     </style>
 </head>
 <body>
 
-    <!-- Overlay na dynamiczne smaki -->
+    <!-- Miejsce na dane z arkusza -->
     <div id="menu-overlay"></div>
 
     <script>
-        // TUTAJ WKLEJ LINK .CSV Z GOOGLE SHEETS
+        // PAMIĘTAJ O WKLEJENIU SWOJEGO LINKU .CSV Z GOOGLE SHEETS
         const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSrdYDwv_7MojjqKKEz0yvGd03CdRfNcMhUlQdM0J_cWULAlVDfcxlwqR7GAp3uXzHogrO5DcrGUBIW/pub?output=csv';
 
         async function updateMenu() {
@@ -100,21 +101,22 @@
 
                 lines.forEach((line, index) => {
                     if (index < 8) { 
+                        // NAPRAWIONY PODZIAŁ NA KOLUMNY:
                         const columns = line.split(',');
-                        const flavorName = columns ? columns.replace(/"/g, '').trim() : '';
-                        const flavorImg = columns ? columns.replace(/"/g, '').trim() : '';
+                        const flavorName = columns[0] ? columns[0].replace(/"/g, '').trim() : '';
+                        const flavorImg = columns[1] ? columns[1].replace(/"/g, '').trim() : '';
 
                         const slotDiv = document.createElement('div');
                         slotDiv.className = 'flavor-slot';
                         slotDiv.id = `slot-${index}`;
 
-                        // Tekst smaku
+                        // 1. Dodanie poprawnego granatowego tekstu
                         const textSpan = document.createElement('span');
                         textSpan.className = 'flavor-text';
                         textSpan.textContent = flavorName;
                         slotDiv.appendChild(textSpan);
 
-                        // Ikona smaku pod spodem
+                        // 2. Dodanie ikony pod tekstem
                         if (flavorImg) {
                             const img = document.createElement('img');
                             img.className = 'flavor-icon';
@@ -124,16 +126,6 @@
                         }
 
                         overlay.appendChild(slotDiv);
-
-                        // Skrypt ściskający tekst w poziomie, jeśli jest za długi dla ramki kafelka
-                        setTimeout(() => {
-                            const currentWidth = textSpan.scrollWidth;
-                            const maxWidth = slotDiv.offsetWidth;
-                            if (currentWidth > maxWidth) {
-                                const scaleFactor = maxWidth / currentWidth;
-                                textSpan.style.transform = `scaleX(${scaleFactor})`;
-                            }
-                        }, 50);
                     }
                 });
             } catch (error) {
@@ -142,7 +134,7 @@
         }
 
         updateMenu();
-        setInterval(updateMenu, 30000); // Odświeżanie co 30 sekund
+        setInterval(updateMenu, 30000); 
     </script>
 </body>
 </html>
