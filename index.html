@@ -12,78 +12,78 @@
         }
         body {
             background-image: url('tlo.jpg'); 
-            background-size: 100% 100%; /* Wymusza dokładne rozciągnięcie grafiki do krawędzi ekranu */
+            background-size: 100% 100%; /* Wymuszenie idealnego rozciągnięcia do krawędzi ekranu */
             background-position: center;
             background-repeat: no-repeat;
             width: 100vw;
             height: 100vh;
             overflow: hidden;
             position: relative;
+            
+            /* DOKŁADNY KOLOR I STYL JAK "ŚMIETANKA PREMIUM" */
+            color: #111c3c; 
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-size: 1.45rem; 
+            text-transform: uppercase;
+            letter-spacing: 0.2px; /* Lekkie światło między literami jak w oryginale */
         }
 
-        /* 
-          SIATKA GŁÓWNA DLA 8 DOLNYCH KWADRATÓW
-          Tworzy przezroczystą strefę dokładnie w dolnej połowie ekranu
-        */
-        #menu-overlay {
-            position: absolute;
-            /* Pozycjonowanie całej strefy na dole obrazu */
-            bottom: 3.5%;       /* Odstęp od samego dołu ekranu (podnoś/opuszczaj całą strefę) */
-            left: 5.2%;         /* Margines po lewej stronie ekranu */
-            width: 89.6%;       /* Szerokość całej strefy z kafelkami */
-            height: 41%;        /* Wysokość zajmowana przez 2 dolne rzędy kafelków */
-            
-            /* Budowanie automatycznej matrycy: 2 rzędy i 4 równe kolumny */
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            grid-template-rows: repeat(2, 1fr);
-            
-            /* Odstępy między kafelkami (automatycznie dopasują się do przerw na zdjęciu) */
-            column-gap: 5.5%;   
-            row-gap: 13%;       
-        }
-
-        /* Styl pojedynczego okienka z tekstem i ikoną */
+        /* Struktura slotu (Tekst na górze, ikona na dole) */
         .flavor-slot {
+            position: absolute;
+            transform: translate(-50%, -50%);
             display: flex;
             flex-direction: column; 
             align-items: center;    
             justify-content: center;
-            gap: 10px;              /* Odstęp pionowy między tekstem a obrazkiem */
-            width: 100%;
-            height: 100%;
-            
-            /* GŁÓWNY STYL TEKSTU */
-            color: #000000; 
-            font-family: 'Arial Black', Gadget, sans-serif; 
-            font-size: 1.5rem; /* Tutaj zmieniasz rozmiar czcionki */
-            text-transform: uppercase;
+            gap: 8px;              
+            width: 17vw; /* Szerokość bezpieczna dla kafelków */
+            text-align: center;
         }
 
         .flavor-text {
+            display: inline-block;
+            font-weight: 800; /* Gruby font (Bold / Extra Bold) */
+            width: 100%;
             white-space: nowrap;
             overflow: hidden;
-            text-overflow: ellipsis;
-            font-weight: 900;
-            text-align: center;
-            width: 100%;
+            /* Automatyczne ściskanie tekstu w poziomie, jeśli nazwa smaku jest za długa dla kafelka */
+            transform-origin: center;
         }
 
-        /* Styl dla ikony smaku */
+        /* Styl dla ikony smaku umieszczonej pod tekstem */
         .flavor-icon {
             width: 55px;            
             height: 55px; 
             object-fit: contain;    
         }
+
+        /* 
+           PRECYZYJNA MATRYCA POZYCJI DLA TWOICH KWADRATÓW
+           Wartości procentowe określają środek każdego z 8 pustych kafelków.
+        */
+
+        /* RZĄD 3 (Smaki zmienne 1 - 4) */
+        #slot-0 { top: 61.3%; left: 16.5%; } 
+        #slot-1 { top: 61.3%; left: 38.8%; } 
+        #slot-2 { top: 61.3%; left: 61.2%; } 
+        #slot-3 { top: 61.3%; left: 83.5%; } 
+
+        /* RZĄD 4 (Smaki zmienne 5 - 8) */
+        #slot-4 { top: 82.3%; left: 16.5%; } 
+        #slot-5 { top: 82.3%; left: 38.8%; } 
+        #slot-6 { top: 82.3%; left: 61.2%; } 
+        #slot-7 { top: 82.3%; left: 83.5%; } 
+
     </style>
 </head>
 <body>
 
-    <!-- Przezroczysta siatka nakładana na dolne rzędy -->
+    <!-- Overlay na dynamiczne smaki -->
     <div id="menu-overlay"></div>
 
     <script>
-        // TUTAJ WKLEJ SWÓJ LINK .CSV Z GOOGLE SHEETS
+        // TUTAJ WKLEJ LINK .CSV Z GOOGLE SHEETS
         const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSrdYDwv_7MojjqKKEz0yvGd03CdRfNcMhUlQdM0J_cWULAlVDfcxlwqR7GAp3uXzHogrO5DcrGUBIW/pub?output=csv';
 
         async function updateMenu() {
@@ -99,21 +99,22 @@
                 overlay.innerHTML = ''; 
 
                 lines.forEach((line, index) => {
-                    if (index < 8) { // Obsługujemy dokładnie 8 dolnych kwadratów
+                    if (index < 8) { 
                         const columns = line.split(',');
-                        const flavorName = columns[0] ? columns[0].replace(/"/g, '').trim() : '';
-                        const flavorImg = columns[1] ? columns[1].replace(/"/g, '').trim() : '';
+                        const flavorName = columns ? columns.replace(/"/g, '').trim() : '';
+                        const flavorImg = columns ? columns.replace(/"/g, '').trim() : '';
 
                         const slotDiv = document.createElement('div');
                         slotDiv.className = 'flavor-slot';
+                        slotDiv.id = `slot-${index}`;
 
-                        // 1. Nazwa smaku (Góra)
+                        // Tekst smaku
                         const textSpan = document.createElement('span');
                         textSpan.className = 'flavor-text';
                         textSpan.textContent = flavorName;
                         slotDiv.appendChild(textSpan);
 
-                        // 2. Ikona smaku (Dół)
+                        // Ikona smaku pod spodem
                         if (flavorImg) {
                             const img = document.createElement('img');
                             img.className = 'flavor-icon';
@@ -123,6 +124,16 @@
                         }
 
                         overlay.appendChild(slotDiv);
+
+                        // Skrypt ściskający tekst w poziomie, jeśli jest za długi dla ramki kafelka
+                        setTimeout(() => {
+                            const currentWidth = textSpan.scrollWidth;
+                            const maxWidth = slotDiv.offsetWidth;
+                            if (currentWidth > maxWidth) {
+                                const scaleFactor = maxWidth / currentWidth;
+                                textSpan.style.transform = `scaleX(${scaleFactor})`;
+                            }
+                        }, 50);
                     }
                 });
             } catch (error) {
@@ -131,7 +142,7 @@
         }
 
         updateMenu();
-        setInterval(updateMenu, 30000); 
+        setInterval(updateMenu, 30000); // Odświeżanie co 30 sekund
     </script>
 </body>
 </html>
