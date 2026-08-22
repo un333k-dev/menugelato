@@ -30,7 +30,7 @@
             flex-direction: column; 
             align-items: center;    
             justify-content: flex-start;
-            width: 12.5vw; /* Zwiększona szerokość okienka na tekst, aby długie nazwy się nie gniotły */
+            width: 11vw; /* Przywrócona bezpieczna szerokość kafelka */
             height: 16vh; 
             text-align: center;
             margin: 0;
@@ -40,15 +40,17 @@
         .flavor-text {
             display: block;
             color: #0e265c !important; 
-            font-size: 1.05vw; /* Zmniejszona wielkość liter z 1.15vw, by chronić ramki kafelków */
+            font-size: 1.2vw; /* Optymalny rozmiar wyjściowy */
             font-weight: 800; 
             letter-spacing: -0.2px;
             width: 100%;
-            white-space: normal !important; 
-            word-wrap: break-word; 
-            line-height: 1.15;
-            margin-top: 4px; /* Minimalny margines bezpieczeństwa od górnej kreski kafelka */
+            white-space: nowrap; /* Zablokowanie łamania na rzecz bezpiecznego ściskania w poziomie */
+            overflow: visible;
+            line-height: 1.1;
+            margin-top: 5px; /* Idealny odstęp od górnej kreski kafelka */
             margin-bottom: 6px;
+            transform-origin: center top; /* Ściskanie do środka */
+            transition: transform 0.1s ease;
         }
 
         .flavor-icon {
@@ -58,20 +60,16 @@
             margin-top: auto; 
         }
 
-        /* 
-           NOWA MATRYCA PRZESUNIĘTA O JEDNO MIEJSCE WYŻEJ
-           Slot-0 celuje teraz w stare miejsce Sorbetu Kiwi.
-        */
-
+        /* MATRYCA POZYCJI DLA GÓRNEJ KRAWĘDZI OKIENEK (START OD KIWI) */
         /* RZĄD 2 (Ostatnia kolumna) */
-        #slot-0 { top: 36.5%; left: 70.6%; } /* Miejsce po Sorbet Kiwi */
+        #slot-0 { top: 36.5%; left: 70.6%; } 
 
-        /* RZĄD 3 (Trzy puste kafelki obok Brigadeiro) */
+        /* RZĄD 3 */
         #slot-1 { top: 56.5%; left: 48.0%; } 
         #slot-2 { top: 56.5%; left: 59.3%; } 
         #slot-3 { top: 56.5%; left: 70.6%; } 
 
-        /* RZĄD 4 (Trzy pierwsze kafelki w ostatnim rzędzie) */
+        /* RZĄD 4 */
         #slot-4 { top: 76.5%; left: 36.7%; } 
         #slot-5 { top: 76.5%; left: 48.0%; } 
         #slot-6 { top: 76.5%; left: 59.3%; } 
@@ -126,6 +124,22 @@
                             }
 
                             overlay.appendChild(slotDiv);
+
+                            /* 
+                               AUTOMATYCZNE I PŁYNNE DOPASOWANIE SZEROKOŚCI TEKSTU
+                               Skrypt sprawdza rozmiar i jeśli nazwa (np. Prażony nerkowiec) 
+                               jest za długa, idealnie dociska ją w poziomie, chroniąc ramki.
+                            */
+                            setTimeout(() => {
+                                const textWidth = textSpan.scrollWidth;
+                                const slotWidth = slotDiv.offsetWidth;
+                                
+                                if (textWidth > slotWidth) {
+                                    const scaleRatio = slotWidth / textWidth;
+                                    // Dodatkowe lekkie zabezpieczenie (0.95), aby tekst nie dotykał krawędzi kratek
+                                    textSpan.style.transform = `scaleX(${scaleRatio * 0.95})`;
+                                }
+                            }, 50);
                         }
                     }
                 });
