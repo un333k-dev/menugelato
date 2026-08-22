@@ -12,94 +12,81 @@
         }
 
         body {
-            background-color: #000000;
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-
-        /* 
-           GŁÓWNE PUDEŁKO STRONY
-           Blokuje i pilnuje proporcji 16:9 Twojej planszy.
-        */
-        .menu-container {
-            position: relative;
-            width: 100vw;
-            height: 56.25vw;
-            max-height: 100vh;
-            max-width: 177.78vh;
             background-image: url('tlo.jpg'); 
             background-size: 100% 100%;
             background-position: center;
             background-repeat: no-repeat;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            background-color: #ffffff;
+            
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            text-transform: uppercase;
         }
 
-        /* Styl dla pojedynczego okienka ze zmiennym smakiem */
+        /* 
+           ZMIENIONY PUNKT KOTWICZENIA SLOTU
+           Kotwiczymy górną krawędź bloku (translate -50% w poziomie, 0 w pionie).
+           Dzięki temu tekst trzyma się góry kafelka, a obrazek ma miejsce pod spodem.
+        */
         .flavor-slot {
             position: absolute;
-            transform: translate(-50%, -50%);
+            transform: translate(-50%, 0);
             display: flex;
             flex-direction: column; 
             align-items: center;    
-            justify-content: center;
-            width: 10.8%; /* Precyzyjna szerokość pojedynczego kwadratu w tabeli Nutto */
+            justify-content: flex-start;
+            width: 11vw; 
+            height: 16vh; /* Bezpieczna wysokość całego kafelka na treść */
             text-align: center;
         }
 
-        /* STYLIZACJA IDENTYCZNA JAK W STAŁYCH NAPISACH NUTTO */
         .flavor-text {
             display: block;
-            color: #0e265c !important; /* Dokładny granat pobrany z planszy */
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-            font-size: 1.4cqi; /* Elastyczna wielkość liter dopasowująca się do skali monitora */
-            font-weight: 800; /* Mocne, eleganckie pogrubienie */
-            text-transform: uppercase;
+            font-size: 1.45vw; 
+            font-weight: 800; 
             letter-spacing: -0.2px;
             width: 100%;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             line-height: 1.1;
+            margin-bottom: 8px; /* Odstęp tekstu od obrazka */
         }
 
-        /* Ikona owocu/dodatku umieszczona dokładnie pod tekstem */
+        /* Elastyczna wielkość ikony pod tekstem */
         .flavor-icon {
-            width: 4.8cqi; 
-            height: 4.8cqi; 
+            width: 4.8vw; 
+            height: 4.8vw; 
             object-fit: contain;    
-            margin-top: 8px; /* Odstęp pionowy */
+            margin-top: auto; /* Popycha ikonę do dolnej części zarezerwowanego obszaru */
         }
 
         /* 
-           PRECYZYJNA MATRYCA POZYCJI DLA TWOICH PUSTYCH KWADRATÓW
-           Współrzędne (X, Y) obliczone bezpośrednio z proporcji tabeli Nutto Gelato.
+           SKORYGOWANA MATRYCA POZYCJI DLA GÓRNEJ KRAWĘDZI OKIENEK
+           Wartości 'top' zostały zmniejszone, aby napisy lądowały tuż pod górną kreską kafelka.
         */
 
-        /* RZĄD 3 (Kafel 1 to Brigadeiro, więc zapełniamy puste kafelki 2, 3 i 4) */
-        #slot-0 { top: 64.5%; left: 48.0%; } /* Trzeci rząd, druga kolumna */
-        #slot-1 { top: 64.5%; left: 59.3%; } /* Trzeci rząd, trzecia kolumna */
-        #slot-2 { top: 64.5%; left: 70.6%; } /* Trzeci rząd, czwarta kolumna */
+        /* RZĄD 3 (Zapełniamy puste kafelki 2, 3 i 4 - obok Brigadeiro) */
+        #slot-0 { top: 56.5%; left: 48.0%; } 
+        #slot-1 { top: 56.5%; left: 59.3%; } 
+        #slot-2 { top: 56.5%; left: 70.6%; } 
 
         /* RZĄD 4 (Cztery puste kafelki od lewej do prawej) */
-        #slot-3 { top: 84.3%; left: 36.7%; } /* Czwarty rząd, pierwsza kolumna */
-        #slot-4 { top: 84.3%; left: 48.0%; } /* Czwarty rząd, druga kolumna */
-        #slot-5 { top: 84.3%; left: 59.3%; } /* Czwarty rząd, trzecia kolumna */
-        #slot-6 { top: 84.3%; left: 70.6%; } /* Czwarty rząd, czwarta kolumna */
+        #slot-3 { top: 76.5%; left: 36.7%; } 
+        #slot-4 { top: 76.5%; left: 48.0%; } 
+        #slot-5 { top: 76.5%; left: 59.3%; } 
+        #slot-6 { top: 76.5%; left: 70.6%; } 
 
     </style>
 </head>
 <body>
 
-    <div class="menu-container">
-        <!-- Warstwa wtryskiwania dynamicznych smaków -->
-        <div id="menu-overlay"></div>
-    </div>
+    <div id="menu-overlay"></div>
 
     <script>
-        // TUTAJ WKLEJ LINK .CSV Z GOOGLE SHEETS
         const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSrdYDwv_7MojjqKKEz0yvGd03CdRfNcMhUlQdM0J_cWULAlVDfcxlwqR7GAp3uXzHogrO5DcrGUBIW/pub?output=csv';
 
         async function updateMenu() {
@@ -114,7 +101,6 @@
                 const overlay = document.getElementById('menu-overlay');
                 overlay.innerHTML = ''; 
 
-                // Obsługujemy dokładnie 7 wolnych miejsc (slot-0 do slot-6)
                 lines.forEach((line, index) => {
                     if (index < 7) { 
                         const columns = line.split(',');
@@ -125,13 +111,14 @@
                         slotDiv.className = 'flavor-slot';
                         slotDiv.id = `slot-${index}`;
 
-                        // Generowanie nazwy smaku (Granat)
+                        // Generowanie nazwy smaku (Granat Nutto)
                         const textSpan = document.createElement('span');
                         textSpan.className = 'flavor-text';
+                        textSpan.setAttribute('style', 'color: #0e265c !important;');
                         textSpan.textContent = flavorName;
                         slotDiv.appendChild(textSpan);
 
-                        // Generowanie dedykowanej ikony pod tekstem
+                        // Generowanie ikony na dole (jeśli podano link w drugiej kolumnie)
                         if (flavorImg) {
                             const img = document.createElement('img');
                             img.className = 'flavor-icon';
@@ -149,7 +136,7 @@
         }
 
         updateMenu();
-        setInterval(updateMenu, 30000); // Automatyczna aktualizacja z arkusza co 30 sekund
+        setInterval(updateMenu, 30000); 
     </script>
 </body>
 </html>
