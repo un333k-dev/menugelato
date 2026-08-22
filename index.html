@@ -10,41 +10,25 @@
             margin: 0;
             padding: 0;
         }
-        
         body {
-            background-color: #000000; /* Czarne pasy bezpieczeństwa, jeśli ekran miałby inne proporcje */
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            
-            /* DOKŁADNY KOLOR I STYL JAK "ŚMIETANKA PREMIUM" */
-            color: #111c3c; 
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        /* 
-           GŁÓWNY KONTENER TABLICY MENU 
-           Blokuje proporcje ekranu 16:9. Wszystko wewnątrz skaluje się idealnie razem z tłem.
-        */
-        .menu-wrapper {
-            position: relative;
-            width: 100vw;
-            height: 56.25vw; /* Konstrukcja proporcji 16:9 bazująca na szerokości */
-            max-height: 100vh;
-            max-width: 177.78vh; /* Zabezpieczenie przed rozciąganiem w pionie */
-            
+            /* Tło rozciągnięte na pełen ekran - bez bocznych pasów */
             background-image: url('tlo.jpg'); 
-            background-size: 100% 100%; /* Elastyczne, pełne rozciągnięcie wewnątrz kontenera */
+            background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            
+            /* DOKŁADNY KOLOR SZAFIROWEGO GRANATU JAK W ORYGINALE */
+            color: #111C3C !important; 
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 1.5rem; 
+            text-transform: uppercase;
         }
 
-        /* Styl dla pojedynczego okienka smaku */
+        /* Każde okienko traktowane jako niezależny punkt na siatce ekranu */
         .flavor-slot {
             position: absolute;
             transform: translate(-50%, -50%);
@@ -52,55 +36,52 @@
             flex-direction: column; 
             align-items: center;    
             justify-content: center;
-            width: 17%; /* Szerokość kafelka wyrażona w procentach kontenera */
+            gap: 12px;              
+            width: 320px; 
             text-align: center;
         }
 
-        /* Dynamiczny rozmiar tekstu reagujący na wielkość okna */
         .flavor-text {
             display: block;
             font-weight: 800; 
-            font-size: 2.2cqi; /* Rozmiar czcionki skaluje się płynnie wraz z rozmiarem całej planszy */
+            color: #111C3C !important; /* Wymuszenie koloru dla tekstu */
             width: 100%;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        /* Elastyczna ikona smaku umieszczona pod tekstem */
+        /* Ikona smaku umieszczona pod tekstem */
         .flavor-icon {
-            width: 4.5cqi; /* Wielkość ikony również dopasowuje się do skali tła */
-            height: 4.5cqi; 
+            width: 55px;            
+            height: 55px; 
             object-fit: contain;    
-            margin-top: 2%;
         }
 
         /* 
-           MATRYCA PROCENTOWA (X, Y) WPISANA W STRUKTURĘ 16:9
-           Te punkty określają środek geometryczny Twoich 8 dolnych kwadratów.
-           Jeżeli po wdrożeniu jakiś smak minimalnie ucieka, delikatnie zmień jego procenty.
+           MATRYCA WSPÓŁRZĘDNYCH DLA DOLNYCH RZĘDÓW KAFLI
+           Jeżeli po otwarciu na monitorze tekst jest lekko przesunięty, 
+           zmień parametry top (góra/dół) i left (lewo/prawo) tylko dla danej pozycji.
         */
 
         /* RZĄD 3 (Smaki zmienne 1 - 4) */
-        #slot-0 { top: 61.5%; left: 16.6%; } 
-        #slot-1 { top: 61.5%; left: 38.9%; } 
-        #slot-2 { top: 61.5%; left: 61.1%; } 
-        #slot-3 { top: 61.5%; left: 83.4%; } 
+        #slot-0 { top: 61.5%; left: 16.5%; } 
+        #slot-1 { top: 61.5%; left: 38.8%; } 
+        #slot-2 { top: 61.5%; left: 61.2%; } 
+        #slot-3 { top: 61.5%; left: 83.5%; } 
 
         /* RZĄD 4 (Smaki zmienne 5 - 8) */
-        #slot-4 { top: 82.5%; left: 16.6%; } 
-        #slot-5 { top: 82.5%; left: 38.9%; } 
-        #slot-6 { top: 82.5%; left: 61.1%; } 
-        #slot-7 { top: 82.5%; left: 83.4%; } 
+        #slot-4 { top: 82.5%; left: 16.5%; } 
+        #slot-5 { top: 82.5%; left: 38.8%; } 
+        #slot-6 { top: 82.5%; left: 61.2%; } 
+        #slot-7 { top: 82.5%; left: 83.5%; } 
 
     </style>
 </head>
 <body>
 
-    <!-- Wszystko zamykamy w jednym elastycznym pudełku o stałych proporcjach -->
-    <div class="menu-wrapper">
-        <div id="menu-overlay"></div>
-    </div>
+    <!-- Wszystkie dynamiczne smaki wstrzykiwane bezpośrednio w przestrzeń ekranu -->
+    <div id="menu-overlay"></div>
 
     <script>
         // TUTAJ WKLEJ LINK .CSV Z GOOGLE SHEETS
@@ -121,6 +102,8 @@
                 lines.forEach((line, index) => {
                     if (index < 8) { 
                         const columns = line.split(',');
+                        
+                        // Zabezpieczenie danych i pobranie wartości z kolumn A i B
                         const flavorName = columns[0] ? columns[0].replace(/"/g, '').trim() : '';
                         const flavorImg = columns[1] ? columns[1].replace(/"/g, '').trim() : '';
 
@@ -128,13 +111,13 @@
                         slotDiv.className = 'flavor-slot';
                         slotDiv.id = `slot-${index}`;
 
-                        // Tekst
+                        // Generowanie tekstu w kolorze granatowym
                         const textSpan = document.createElement('span');
                         textSpan.className = 'flavor-text';
                         textSpan.textContent = flavorName;
                         slotDiv.appendChild(textSpan);
 
-                        // Ikona pod tekstem
+                        // Generowanie ikony
                         if (flavorImg) {
                             const img = document.createElement('img');
                             img.className = 'flavor-icon';
