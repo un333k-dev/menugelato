@@ -23,7 +23,6 @@
             text-transform: uppercase;
         }
 
-        /* Powrót do bezpiecznych, sprawdzonych wymiarów kafelka */
         .flavor-slot {
             position: absolute;
             transform: translate(-50%, 0);
@@ -38,18 +37,15 @@
             padding: 0;
         }
 
-        /* 
-           POWRÓT DO SPRAWDZONEGO ZAWIJANIA WIERSZY
-           Zmniejszono font-size do 1.1vw, aby teksty nie uderzały w boczne linie.
-        */
+        /* Subtelnie zmniejszona czcionka do 1.05vw daje pełne bezpieczeństwo przy bocznych liniach */
         .flavor-text {
             display: block;
             color: #0e265c !important; 
-            font-size: 1.1vw; /* Bezpieczna, zgrabna wielkość dla długich nazw */
+            font-size: 1.05vw; 
             font-weight: 800; 
             letter-spacing: -0.2px;
             width: 100%;
-            white-space: normal !important; /* Zgoda na łamanie tekstu na 2 linie */
+            white-space: normal !important; 
             word-wrap: break-word; 
             line-height: 1.15;
             margin-top: 5px; 
@@ -63,23 +59,14 @@
             margin-top: auto; 
         }
 
-        /* 
-           NAPRAWIONA MATRYCA KOLEJNOŚCI POZYCJI
-           Skrypt teraz idealnie przechodzi kafelek po kafelku bez pomijania okienek.
-        */
-
-        /* RZĄD 2 (Ostatnia kolumna - Miejsce po Sorbet Kiwi) */
-        #slot-0 { top: 36.5%; left: 70.6%; } 
-
-        /* RZĄD 3 (Trzy puste kafelki obok Brigadeiro) */
-        #slot-1 { top: 56.5%; left: 48.0%; } 
-        #slot-2 { top: 56.5%; left: 59.3%; } 
-        #slot-3 { top: 56.5%; left: 70.6%; } 
-
-        /* RZĄD 4 (Trzy pierwsze kafelki w ostatnim rzędzie) */
-        #slot-4 { top: 76.5%; left: 36.7%; } 
-        #slot-5 { top: 76.5%; left: 48.0%; } 
-        #slot-6 { top: 76.5%; left: 59.3%; } 
+        /* MATRYCA POZYCJI - KAFAEL PO KAFELKU W IDEALNEJ KOLEJNOŚCI */
+        #slot-0 { top: 36.5%; left: 70.6%; } /* Rząd 2, Kolumna 4 (Sorbet Kiwi) */
+        #slot-1 { top: 56.5%; left: 48.0%; } /* Rząd 3, Kolumna 2 */
+        #slot-2 { top: 56.5%; left: 59.3%; } /* Rząd 3, Kolumna 3 */
+        #slot-3 { top: 56.5%; left: 70.6%; } /* Rząd 3, Kolumna 4 */
+        #slot-4 { top: 76.5%; left: 36.7%; } /* Rząd 4, Kolumna 1 */
+        #slot-5 { top: 76.5%; left: 48.0%; } /* Rząd 4, Kolumna 2 */
+        #slot-6 { top: 76.5%; left: 59.3%; } /* Rząd 4, Kolumna 3 */
 
     </style>
 </head>
@@ -95,43 +82,45 @@
                 const response = await fetch(csvUrl);
                 const data = await response.text();
                 
-                const lines = data.split('\n')
-                                  .map(line => line.trim())
-                                  .filter(line => line.length > 0);
+                // Nowy, zaawansowany parser usuwający ukryte znaki Windows/Excel (\r) i puste linie
+                const validFlavors = data.split('\n')
+                    .map(line => line.replace(/\r/g, '').trim())
+                    .filter(line => line.length > 0)
+                    .map(line => {
+                        const columns = line.split(',');
+                        const rawName = columns.shift() || '';
+                        const rawImg = columns.shift() || '';
+                        return {
+                            name: rawName.replace(/"/g, '').trim(),
+                            img: rawImg.replace(/"/g, '').trim()
+                        };
+                    })
+                    .filter(flavor => flavor.name.length > 0); // Odrzucenie pustych wpisów
 
                 const overlay = document.getElementById('menu-overlay');
                 overlay.innerHTML = ''; 
 
-                lines.forEach((line, index) => {
+                // Wstrzykiwanie dokładnie przefiltrowanych smaków
+                validFlavors.forEach((flavor, index) => {
                     if (index < 7) { 
-                        const columns = line.split(',');
-                        
-                        if (columns.length > 0) {
-                            const rawName = columns.shift() || '';
-                            const rawImg = columns.shift() || '';
-                            
-                            const flavorName = rawName.replace(/"/g, '').trim();
-                            const flavorImg = rawImg.replace(/"/g, '').trim();
+                        const slotDiv = document.createElement('div');
+                        slotDiv.className = 'flavor-slot';
+                        slotDiv.id = `slot-${index}`;
 
-                            const slotDiv = document.createElement('div');
-                            slotDiv.className = 'flavor-slot';
-                            slotDiv.id = `slot-${index}`;
+                        const textSpan = document.createElement('span');
+                        textSpan.className = 'flavor-text';
+                        textSpan.textContent = flavor.name;
+                        slotDiv.appendChild(textSpan);
 
-                            const textSpan = document.createElement('span');
-                            textSpan.className = 'flavor-text';
-                            textSpan.textContent = flavorName;
-                            slotDiv.appendChild(textSpan);
-
-                            if (flavorImg) {
-                                const img = document.createElement('img');
-                                img.className = 'flavor-icon';
-                                img.src = flavorImg;
-                                img.alt = '';
-                                slotDiv.appendChild(img);
-                            }
-
-                            overlay.appendChild(slotDiv);
+                        if (flavor.img) {
+                            const img = document.createElement('img');
+                            img.className = 'flavor-icon';
+                            img.src = flavor.img;
+                            img.alt = '';
+                            slotDiv.appendChild(img);
                         }
+
+                        overlay.appendChild(slotDiv);
                     }
                 });
             } catch (error) {
