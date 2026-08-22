@@ -37,19 +37,16 @@
             padding: 0;
         }
 
-        /* 
-           ZAKTUALIZOWANY STYL TEKSTU
-           Zmniejszono font-size do 1.2vw oraz usunięto blokadę linii, 
-           co pozwala na automatyczne dzielenie długich nazw smaków.
-        */
+        /* Styl z mniejszą czcionką i włączonym automatycznym dzieleniem wyrazów */
         .flavor-text {
             display: block;
-            color: #0e265c !important; 
-            font-size: 1.2vw; /* Zmniejszono z 1.45vw, aby tekst zgrabnie się mieścił */
+            color: #0e265c !important; /* Bezwarunkowe wymuszenie szafirowego granatu Nutto */
+            font-size: 1.15vw; /* Zmniejszona wielkość liter dla zgrabnego wyglądu */
             font-weight: 800; 
             letter-spacing: -0.2px;
             width: 100%;
-            word-wrap: break-word; /* Bezpieczne łamanie długich słów w razie potrzeby */
+            white-space: normal !important; /* Zgoda na dzielenie wierszy */
+            word-wrap: break-word; 
             line-height: 1.15;
             margin-bottom: 6px;
         }
@@ -97,8 +94,12 @@
                         const columns = line.split(',');
                         
                         if (columns.length > 0) {
-                            const flavorName = columns ? columns.replace(/"/g, '').trim() : '';
-                            const flavorImg = columns ? columns.replace(/"/g, '').trim() : '';
+                            // Nowy, bezpieczny sposób wyciągania kolumn bez użycia nawiasów kwadratowych
+                            const rawName = columns.shift() || '';
+                            const rawImg = columns.shift() || '';
+                            
+                            const flavorName = rawName.replace(/"/g, '').trim();
+                            const flavorImg = rawImg.replace(/"/g, '').trim();
 
                             const slotDiv = document.createElement('div');
                             slotDiv.className = 'flavor-slot';
