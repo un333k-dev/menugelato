@@ -10,25 +10,45 @@
             margin: 0;
             padding: 0;
         }
+
         body {
-            /* Tło rozciągnięte na pełen ekran - bez bocznych pasów */
-            background-image: url('tlo.jpg'); 
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
+            background-color: #000000; /* Czarne tło jako margines bezpieczeństwa */
             width: 100vw;
             height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             overflow: hidden;
-            position: relative;
-            
-            /* DOKŁADNY KOLOR SZAFIROWEGO GRANATU JAK W ORYGINALE */
-            color: #111C3C !important; 
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            font-size: 1.5rem; 
-            text-transform: uppercase;
         }
 
-        /* Każde okienko traktowane jako niezależny punkt na siatce ekranu */
+        /* 
+           GŁÓWNE PUDEŁKO STRONY
+           Zawiera obrazek oraz nakładkę z napisami. Gwarantuje brak ucinania grafiki.
+        */
+        .container {
+            position: relative;
+            width: 100vw;
+            max-width: 177.78vh; /* Blokada proporcji 16:9 dla ekranów Full HD/4K */
+            display: inline-block;
+        }
+
+        /* Obraz tła wstawiony jako elastyczny plik, który nigdy się nie przytnie */
+        .menu-bg {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        /* Warstwa nakładana bezpośrednio na obrazek */
+        #menu-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Styl dla pojedynczego okienka smaku */
         .flavor-slot {
             position: absolute;
             transform: translate(-50%, -50%);
@@ -36,55 +56,63 @@
             flex-direction: column; 
             align-items: center;    
             justify-content: center;
-            gap: 12px;              
-            width: 320px; 
+            width: 16%; /* Szerokość tekstu dopasowana do kafelka */
             text-align: center;
         }
 
+        /* DOKŁADNY STYL, ROZMIAR I KOLOR JAK "ŚMIETANKA PREMIUM" */
         .flavor-text {
             display: block;
-            font-weight: 800; 
-            color: #111C3C !important; /* Wymuszenie koloru dla tekstu */
+            color: #111c3c !important; /* Ten sam granat */
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 2.1vw; /* Wielkość liter skaluje się proporcjonalnie do szerokości obrazu */
+            font-weight: 800; /* Identyczne pogrubienie */
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             width: 100%;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        /* Ikona smaku umieszczona pod tekstem */
+        /* Ikona smaku pod tekstem */
         .flavor-icon {
-            width: 55px;            
-            height: 55px; 
+            width: 4vw; /* Skaluje się razem z ekranem */
+            height: 4vw; 
             object-fit: contain;    
+            margin-top: 4px;
         }
 
         /* 
-           MATRYCA WSPÓŁRZĘDNYCH DLA DOLNYCH RZĘDÓW KAFLI
-           Jeżeli po otwarciu na monitorze tekst jest lekko przesunięty, 
-           zmień parametry top (góra/dół) i left (lewo/prawo) tylko dla danej pozycji.
+           PRECYZYJNA MATRYCA POZYCJI DLA TWOICH KWADRATÓW
+           Współrzędne procentowe liczone są teraz bezpośrednio od krawędzi obrazka, 
+           więc napisy trafią w kafelki na każdym urządzeniu.
         */
 
         /* RZĄD 3 (Smaki zmienne 1 - 4) */
         #slot-0 { top: 61.5%; left: 16.5%; } 
-        #slot-1 { top: 61.5%; left: 38.8%; } 
-        #slot-2 { top: 61.5%; left: 61.2%; } 
+        #slot-1 { top: 61.5%; left: 38.9%; } 
+        #slot-2 { top: 61.5%; left: 61.1%; } 
         #slot-3 { top: 61.5%; left: 83.5%; } 
 
         /* RZĄD 4 (Smaki zmienne 5 - 8) */
         #slot-4 { top: 82.5%; left: 16.5%; } 
-        #slot-5 { top: 82.5%; left: 38.8%; } 
-        #slot-6 { top: 82.5%; left: 61.2%; } 
+        #slot-5 { top: 82.5%; left: 38.9%; } 
+        #slot-6 { top: 82.5%; left: 61.1%; } 
         #slot-7 { top: 82.5%; left: 83.5%; } 
 
     </style>
 </head>
 <body>
 
-    <!-- Wszystkie dynamiczne smaki wstrzykiwane bezpośrednio w przestrzeń ekranu -->
-    <div id="menu-overlay"></div>
+    <!-- Główna struktura wiążąca grafikę z napisami -->
+    <div class="container">
+        <img src="tlo.jpg" alt="Menu" class="menu-bg">
+        <div id="menu-overlay"></div>
+    </div>
 
     <script>
-        // TUTAJ WKLEJ LINK .CSV Z GOOGLE SHEETS
+        // WPISZ TUTAJ SWÓJ LINK .CSV Z GOOGLE SHEETS
         const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSrdYDwv_7MojjqKKEz0yvGd03CdRfNcMhUlQdM0J_cWULAlVDfcxlwqR7GAp3uXzHogrO5DcrGUBIW/pub?output=csv';
 
         async function updateMenu() {
@@ -102,8 +130,6 @@
                 lines.forEach((line, index) => {
                     if (index < 8) { 
                         const columns = line.split(',');
-                        
-                        // Zabezpieczenie danych i pobranie wartości z kolumn A i B
                         const flavorName = columns[0] ? columns[0].replace(/"/g, '').trim() : '';
                         const flavorImg = columns[1] ? columns[1].replace(/"/g, '').trim() : '';
 
@@ -111,13 +137,13 @@
                         slotDiv.className = 'flavor-slot';
                         slotDiv.id = `slot-${index}`;
 
-                        // Generowanie tekstu w kolorze granatowym
+                        // Generowanie tekstu
                         const textSpan = document.createElement('span');
                         textSpan.className = 'flavor-text';
                         textSpan.textContent = flavorName;
                         slotDiv.appendChild(textSpan);
 
-                        // Generowanie ikony
+                        // Generowanie ikony pod tekstem
                         if (flavorImg) {
                             const img = document.createElement('img');
                             img.className = 'flavor-icon';
@@ -135,7 +161,7 @@
         }
 
         updateMenu();
-        setInterval(updateMenu, 30000); 
+        setInterval(updateMenu, 30000); // Odświeżanie danych co 30 sekund
     </script>
 </body>
 </html>
